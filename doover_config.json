@@ -2,50 +2,151 @@
     "whatsapp": {
         "name": "whatsapp",
         "display_name": "WhatsApp",
-        "type": "DEV",
+        "type": "PRO",
         "visibility": "PUB",
         "allow_many": true,
-        "description": "WhatsApp integration for doover to allow configurable alerts, configurable messages based on configurable thresholds from tag values",
+        "description": "WhatsApp integration for Doover",
         "long_description": "README.md",
         "depends_on": [],
-        "owner_org_key": "FIX-ME",
-        "image_name": "ghcr.io/getdoover/whatsapp:main",
-        "container_registry_profile_key": "FIX-ME",
-        "build_args": "--platform linux/amd64,linux/arm64",
+        "handler": "src.whatsapp.handler",
+        "lambda_config": {
+            "Runtime": "python3.13",
+            "Timeout": 300,
+            "MemorySize": 128,
+            "Handler": "src.whatsapp.handler"
+        },
+        "organisation_id": null,
+        "key": null,
+        "owner_org_id": null,
+        "code_repo_id": null,
+        "container_registry_profile_id": null,
+        "repo_branch": "main",
+        "image_name": null,
+        "icon_url": "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
+        "banner_url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg",
+        "staging_config": {},
+        "export_config_command": null,
+        "run_command": null,
+        "lambda_arn": null,
         "config_schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "",
             "title": "Application Config",
             "type": "object",
             "properties": {
-                "digital_outputs_enabled": {
-                    "title": "Digital Outputs Enabled",
-                    "x-name": "digital_outputs_enabled",
-                    "x-hidden": false,
-                    "type": "boolean",
-                    "default": true
-                },
-                "a_funny_message": {
-                    "title": "A Funny Message",
-                    "x-name": "a_funny_message",
-                    "x-hidden": false,
-                    "type": "string"
-                },
-                "simulator_app_key": {
-                    "format": "doover-application",
-                    "title": "Simulator App Key",
-                    "x-name": "simulator_app_key",
+                "whatsapp_api_url": {
+                    "title": "WhatsApp API URL",
+                    "x-name": "whatsapp_api_url",
                     "x-hidden": false,
                     "type": "string",
-                    "description": "The app key for the simulator"
+                    "description": "WhatsApp Business API endpoint",
+                    "default": "https://graph.facebook.com/v18.0"
+                },
+                "whatsapp_phone_number_id": {
+                    "title": "WhatsApp Phone Number ID",
+                    "x-name": "whatsapp_phone_number_id",
+                    "x-hidden": false,
+                    "type": "string",
+                    "description": "Your WhatsApp Business phone number ID"
+                },
+                "whatsapp_access_token": {
+                    "title": "WhatsApp Access Token",
+                    "x-name": "whatsapp_access_token",
+                    "x-hidden": false,
+                    "type": "string",
+                    "description": "Access token for WhatsApp Business API"
+                },
+                "recipient_phone_numbers": {
+                    "title": "Recipient Phone Numbers",
+                    "x-name": "recipient_phone_numbers",
+                    "x-hidden": false,
+                    "type": "string",
+                    "description": "Comma-separated list of phone numbers to receive alerts (with country code, e.g., +1234567890)"
+                },
+                "thresholds": {
+                    "title": "Thresholds",
+                    "x-name": "thresholds",
+                    "x-hidden": false,
+                    "type": "array",
+                    "description": "List of threshold configurations that trigger alerts",
+                    "items": {
+                        "title": "Threshold",
+                        "x-name": "threshold",
+                        "x-hidden": false,
+                        "type": "object",
+                        "description": "Configuration for a single threshold alert",
+                        "properties": {
+                            "tag_name": {
+                                "title": "Tag Name",
+                                "x-name": "tag_name",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "Name of the tag to monitor for threshold violations"
+                            },
+                            "operator": {
+                                "title": "Operator",
+                                "x-name": "operator",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "Comparison operator: >, <, >=, <=, ==, !=",
+                                "default": ">"
+                            },
+                            "threshold_value": {
+                                "title": "Threshold Value",
+                                "x-name": "threshold_value",
+                                "x-hidden": false,
+                                "type": "number",
+                                "description": "The threshold value to compare against",
+                                "default": 0.0
+                            },
+                            "message_template": {
+                                "title": "Message Template",
+                                "x-name": "message_template",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "Message template. Variables: {tag_name}, {value}, {threshold}, {operator}, {device_name}",
+                                "default": "Alert: {tag_name} is {value} (threshold: {operator} {threshold})"
+                            },
+                            "cooldown_minutes": {
+                                "title": "Cooldown minutes",
+                                "x-name": "cooldown_minutes",
+                                "x-hidden": false,
+                                "type": "integer",
+                                "description": "Minimum time between repeated alerts for the same threshold",
+                                "default": 15
+                            }
+                        },
+                        "additionalElements": true,
+                        "required": [
+                            "tag_name"
+                        ]
+                    }
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "x-name": "enabled",
+                    "x-hidden": false,
+                    "type": "boolean",
+                    "description": "Enable or disable WhatsApp alerts",
+                    "default": true
+                },
+                "default_message_prefix": {
+                    "title": "Default Message Prefix",
+                    "x-name": "default_message_prefix",
+                    "x-hidden": false,
+                    "type": "string",
+                    "description": "Prefix added to all alert messages",
+                    "default": "[Doover Alert]"
                 }
             },
             "additionalElements": true,
             "required": [
-                "a_funny_message",
-                "simulator_app_key"
+                "whatsapp_phone_number_id",
+                "whatsapp_access_token",
+                "recipient_phone_numbers",
+                "thresholds"
             ]
         },
-        "organisation_id": "FIX-ME"
+        "id": "144971961972318475"
     }
 }

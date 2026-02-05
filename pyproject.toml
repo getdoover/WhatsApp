@@ -1,16 +1,14 @@
 [project]
 name = "whatsapp"
 version = "0.1.0"
-description = "Add your description here"
+description = "WhatsApp integration for doover to allow configurable alerts, configurable messages based on configurable thresholds from tag values"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pydoover>=0.4.13",
-    "transitions>=0.9.2",
 ]
 
 [project.scripts]
-doover-app-run = "whatsapp:main"
 export-config = "whatsapp.app_config:export"
 
 [build-system]

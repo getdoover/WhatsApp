@@ -1,10 +1,7 @@
-from pydoover.docker import run_app
+from .application import WhatsappProcessor
 
-from .application import WhatsappApplication
-from .app_config import WhatsappConfig
 
-def main():
-    """
-    Run the application.
-    """
-    run_app(WhatsappApplication(config=WhatsappConfig()))
+def handler(event, context):
+    """Lambda handler entry point."""
+    processor = WhatsappProcessor(**event)
+    processor.execute()
